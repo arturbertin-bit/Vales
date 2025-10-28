@@ -6,6 +6,8 @@ const ValesMensais = () => {
   const [valeAtivo, setValeAtivo] = useState(null);
   const [mostrarMensagem, setMostrarMensagem] = useState('');
   const [carregando, setCarregando] = useState(true);
+  const [comprovanteVale, setComprovanteVale] = useState(null);
+  const [confirmarUso, setConfirmarUso] = useState(null);
 
   const vales = [
     { id: 1, titulo: "Vale Jantar Romântico", descricao: "Um jantar romântico especial preparado com carinho" },
@@ -34,7 +36,7 @@ const ValesMensais = () => {
 
   useEffect(() => {
     lucide.createIcons();
-  }, [valesAbertos, valesUtilizados, mostrarMensagem]);
+  }, [valesAbertos, valesUtilizados, mostrarMensagem, comprovanteVale, confirmarUso]);
 
   const carregarProgresso = () => {
     try {
@@ -86,6 +88,21 @@ const ValesMensais = () => {
     setTimeout(() => setMostrarMensagem(''), 4000);
   };
 
+  const solicitarConfirmacao = (indiceVale) => {
+    setConfirmarUso(indiceVale);
+  };
+
+  const cancelarUso = () => {
+    setConfirmarUso(null);
+  };
+
+  const confirmarUtilizacao = () => {
+    if (confirmarUso !== null) {
+      utilizarVale(confirmarUso);
+      setConfirmarUso(null);
+    }
+  };
+
   const utilizarVale = (indiceVale) => {
     const novosAbertos = valesAbertos.filter(v => v !== indiceVale);
     const novosUtilizados = [...valesUtilizados, indiceVale];
@@ -94,31 +111,72 @@ const ValesMensais = () => {
     setValesUtilizados(novosUtilizados);
     setValeAtivo(null);
     salvarProgresso(novosAbertos, novosUtilizados);
-    setMostrarMensagem('Vale utilizado com sucesso! Espero que aproveite! 💝');
-    setTimeout(() => setMostrarMensagem(''), 3000);
+    
+    // Mostra o comprovante
+    setComprovanteVale({
+      ...vales[indiceVale],
+      data: new Date().toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    });
   };
 
   const devolverVale = (indiceVale) => {
-    const novosAbertos = valesAbertos.filter(v => v !== indiceVale);
-    
-    setValesAbertos(novosAbertos);
-    setValeAtivo(null);
-    salvarProgresso(novosAbertos, valesUtilizados);
-    setMostrarMensagem('Vale devolvido! Você pode escolher outro quando quiser 🔄');
+    try {
+      // Previne múltiplos cliques
+      if (!valesAbertos.includes(indiceVale)) {
+        return;
+      }
+      
+      const novosAbertos = valesAbertos.filter(v => v !== indiceVale);
+      
+      setValeAtivo(null);
+      setValesAbertos(novosAbertos);
+      
+      // Salva com delay para evitar race condition
+      setTimeout(() => {
+        salvarProgresso(novosAbertos, valesUtilizados);
+      }, 100);
+      
+      setMostrarMensagem('Vale devolvido! Você pode escolher outro quando quiser 🔄');
+      setTimeout(() => setMostrarMensagem(''), 3000);
+    } catch (error) {
+      console.error('Erro ao devolver vale:', error);
+      setMostrarMensagem('Erro ao devolver vale. Tente novamente.');
+      setTimeout(() => setMostrarMensagem(''), 3000);
+    }
+  };
+
+  const fecharComprovante = () => {
+    setComprovanteVale(null);
+    setMostrarMensagem('Vale utilizado com sucesso! Espero que aproveite! 💖');
     setTimeout(() => setMostrarMensagem(''), 3000);
   };
 
-  const obterStatusVale = (indiceVale) => {
-    if (valesUtilizados.includes(indiceVale)) {
-      return 'utilizado';
-    }
-    if (valesAbertos.includes(indiceVale)) {
-      return 'aberto';
-    }
-    if (podeAbrirVale(indiceVale)) {
+  const obterStatusVale = (indice) => {
+    try {
+      if (!Array.isArray(valesUtilizados) || !Array.isArray(valesAbertos)) {
+        return 'disponivel';
+      }
+      
+      if (valesUtilizados.includes(indice)) {
+        return 'utilizado';
+      }
+      if (valesAbertos.includes(indice)) {
+        return 'aberto';
+      }
+      if (podeAbrirVale(indice)) {
+        return 'disponivel';
+      }
+      return 'bloqueado';
+    } catch (error) {
+      console.error('Erro ao obter status:', error);
       return 'disponivel';
     }
-    return 'bloqueado';
   };
 
   if (carregando) {
@@ -134,8 +192,69 @@ const ValesMensais = () => {
 
   return (
     <div className="container">
+      {/* Confirmação de uso */}
+      {confirmarUso !== null && (
+        <div className="confirmacao-overlay">
+          <div className="confirmacao-container">
+            <i data-lucide="alert-circle" className="confirmacao-icon"></i>
+            <h3 className="confirmacao-title">Confirmar uso do vale?</h3>
+            <p className="confirmacao-text">
+              Você tem certeza que quer usar o vale <strong>{vales[confirmarUso].titulo}</strong>? 
+              Esta ação não pode ser desfeita!
+            </p>
+            <div className="confirmacao-buttons">
+              <button className="confirmacao-button cancelar" onClick={cancelarUso}>
+                Cancelar
+              </button>
+              <button className="confirmacao-button confirmar" onClick={confirmarUtilizacao}>
+                Sim, usar vale!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Comprovante */}
+      {comprovanteVale && (
+        <div className="comprovante-overlay">
+          <div className="comprovante-container">
+            <div className="comprovante-header">
+              <i data-lucide="ticket-check" className="comprovante-icon"></i>
+              <h2 className="comprovante-title">Comprovante de Uso</h2>
+              <p className="comprovante-subtitle">Vale Utilizado com Sucesso! 🎉</p>
+            </div>
+
+            <div className="comprovante-body">
+              <div className="comprovante-vale-info">
+                <h3 className="comprovante-vale-title">{comprovanteVale.titulo}</h3>
+                <p className="comprovante-vale-descricao">{comprovanteVale.descricao}</p>
+              </div>
+
+              <div className="comprovante-data">
+                <i data-lucide="calendar" className="comprovante-data-icon"></i>
+                <span>{comprovanteVale.data}</span>
+              </div>
+            </div>
+
+            <div className="comprovante-instrucoes">
+              <i data-lucide="camera" className="comprovante-instrucoes-icon"></i>
+              <p className="comprovante-instrucoes-text">
+                📸 Tire um print desta tela e me envie para eu saber que você usou o vale! 💕
+              </p>
+            </div>
+
+            <div className="comprovante-footer">
+              <button className="comprovante-button" onClick={fecharComprovante}>
+                <i data-lucide="x" className="comprovante-button-icon"></i>
+                Fechar Comprovante
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Corações flutuantes de fundo */}
-        <div className="floating-hearts">
+      <div className="floating-hearts">
         <i data-lucide="star" className="floating-heart star-1"></i>
         <i data-lucide="star" className="floating-heart star-2"></i>
         <i data-lucide="sparkles" className="floating-heart sparkle-1"></i>
@@ -144,13 +263,14 @@ const ValesMensais = () => {
       <div className="content-wrapper">
         {/* Cabeçalho */}
         <div className="header">
+          <img src="images/nois.jpeg" alt="Nós dois" className="header-photo" />
           <div className="header-icons">
             <i data-lucide="heart" className="header-heart"></i>
-            <h1 className="header-title">Vales do Amor</h1>
+            <h1 className="header-title">Vales da Charisi</h1>
             <i data-lucide="heart" className="header-heart"></i>
           </div>
-          <p className="header-subtitle">20 vales especiais para momentos incríveis! 💝</p>
-          <p className="header-description">Abra qualquer vale quando quiser e escolha se quer usar ou trocar</p>
+          <p className="header-subtitle">Alguns vales especiais para abrir quando quisar ser mimada 💕</p>
+          <p className="header-description">Em teoria seria um por mês, mas eu não sei limitar hehehe, então não se passe pois sou pobrinho</p>
           
           <div className="stats-container">
             <div className="stat-badge">
@@ -178,11 +298,11 @@ const ValesMensais = () => {
         <div className="vales-grid">
           {vales.map((vale, indice) => {
             const status = obterStatusVale(indice);
-            const estaAberto = valesAbertos.includes(indice);
+            const estaAberto = Array.isArray(valesAbertos) && valesAbertos.includes(indice);
             
             return (
               <div
-                key={vale.id}
+                key={`vale-${vale.id}-${status}`}
                 className={`vale-card ${status}`}
                 onClick={() => status === 'disponivel' && abrirVale(indice)}
               >
@@ -203,7 +323,6 @@ const ValesMensais = () => {
                     </>
                   ) : status === 'disponivel' ? (
                     <>
-                      <i data-lucide="heart" className="vale-icon disponivel-icon pulse"></i>
                       <i data-lucide="star" className="vale-icon-badge star-badge"></i>
                     </>
                   ) : (
@@ -223,7 +342,7 @@ const ValesMensais = () => {
                         className="vale-button use-button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          utilizarVale(indice);
+                          solicitarConfirmacao(indice);
                         }}
                       >
                         <i data-lucide="check" className="button-icon"></i>
@@ -273,8 +392,8 @@ const ValesMensais = () => {
         {/* Rodapé */}
         <div className="footer">
           <i data-lucide="heart" className="footer-icon"></i>
-          <p className="footer-text">Cada vale é uma promessa de amor e carinho 💕</p>
-          <p className="footer-subtext">Abra, escolha usar ou devolva para tentar outro depois!</p>
+          <p className="footer-text">Use-os com sabedoria (e não abuse de mim) 💕</p>
+          <p className="footer-subtext">Eu te amo muito!, mas você só vai saber se ler isso aqui em baixo</p>
         </div>
       </div>
     </div>
