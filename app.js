@@ -11,23 +11,20 @@ const ValesMensais = () => {
     { id: 1, titulo: "Vale Jantar Romântico", descricao: "Um jantar romântico especial preparado com carinho" },
     { id: 2, titulo: "Vale Cinema", descricao: "Cinema com direito a pipoca e guloseimas à vontade" },
     { id: 3, titulo: "Vale Piquenique", descricao: "Piquenique ao ar livre com suas comidas favoritas" },
-    { id: 4, titulo: "Vale Massagem Caseira", descricao: "Uma massagem relaxante feita em casa com todo carinho" },
+    { id: 4, titulo: "Vale Massagem Caseira", descricao: "Uma massagem relaxante feita em casa, quando você quiser" },
     { id: 5, titulo: "Vale Noite de Jogos", descricao: "Noite de jogos - você escolhe qual jogar!" },
     { id: 6, titulo: "Vale Passeio Surpresa", descricao: "Um passeio surpresa para um lugar especial" },
     { id: 7, titulo: "Vale Doce", descricao: "Chocolate, sobremesa especial ou qualquer doce que você quiser" },
     { id: 8, titulo: "Vale Flores", descricao: "Um buquê de flores lindas escolhidas especialmente para você" },
     { id: 9, titulo: "Vale Compras", descricao: "Vale compras de até 100 reais - escolha o que quiser!" },
-    { id: 10, titulo: "Vale Salão de Beleza", descricao: "Um dia no salão para você ficar ainda mais linda" },
-    { id: 11, titulo: "Vale Sorvete", descricao: "Sorvete no sabor e quantidade que você quiser" },
-    { id: 12, titulo: "Vale Brigadeiro de Pote", descricao: "Brigadeiro de pote feito especialmente para você" },
-    { id: 13, titulo: "Vale Massagem nos Pés", descricao: "Massagem relaxante nos pés com hidratação" },
-    { id: 14, titulo: "Vale Escolher o Filme", descricao: "Você escolhe o filme e eu assisto sem reclamar!" },
-    { id: 15, titulo: "Vale Carona", descricao: "Carona para onde você quiser, quando quiser" },
-    { id: 16, titulo: "Vale Carta de Amor", descricao: "Uma carta de amor escrita à mão só para você" },
-    { id: 17, titulo: "Vale Tarde de Fotos", descricao: "Uma tarde especial tirando fotos lindas juntos" },
-    { id: 18, titulo: "Vale Pizza", descricao: "Pizza no sabor que você escolher, delivery ou restaurante" },
-    { id: 19, titulo: "Vale Passeio ou Caminhada", descricao: "Um passeio ou caminhada relaxante no lugar que você preferir" },
-    { id: 20, titulo: "Vale Escolher Roupa", descricao: "Você escolhe minha roupa do dia - seja criativa!" },
+    { id: 10, titulo: "Vale Sorvete", descricao: "Sorvete no sabor e quantidade que você quiser" },
+    { id: 11, titulo: "Vale Brigadeiro", descricao: "Brigadeiro feito especialmente para você" },
+    { id: 12, titulo: "Vale Filme", descricao: "Você escolhe o filme e eu assisto sem reclamar!" },
+    { id: 13, titulo: "Vale Carona", descricao: "Carona para onde você quiser, quando quiser" },
+    { id: 14, titulo: "Vale Carta de Amor", descricao: "Uma carta de amor escrita à mão só para você" },
+    { id: 15, titulo: "Vale Foto", descricao: "Uma foto do jeito que você quiser, não posso negar" },
+    { id: 16, titulo: "Vale Pizza", descricao: "Pizza no sabor que você escolher, delivery ou restaurante" },
+    { id: 17, titulo: "Vale Passeio ou Caminhada", descricao: "Um passeio ou caminhada relaxante no lugar que você preferir" },
   ];
 
   useEffect(() => {
@@ -138,11 +135,7 @@ const ValesMensais = () => {
   return (
     <div className="container">
       {/* Corações flutuantes de fundo */}
-      <div className="floating-hearts">
-        <i data-lucide="heart" className="floating-heart heart-1"></i>
-        <i data-lucide="heart" className="floating-heart heart-2"></i>
-        <i data-lucide="heart" className="floating-heart heart-3"></i>
-        <i data-lucide="heart" className="floating-heart heart-4"></i>
+        <div className="floating-hearts">
         <i data-lucide="star" className="floating-heart star-1"></i>
         <i data-lucide="star" className="floating-heart star-2"></i>
         <i data-lucide="sparkles" className="floating-heart sparkle-1"></i>
